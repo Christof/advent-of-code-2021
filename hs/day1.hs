@@ -5,7 +5,7 @@ exampleDepths = [199, 200, 208, 210, 200, 207, 240, 269, 260, 263]
 createPairs xs = zip (tail xs ++ [0]) xs
 
 depthIncreased :: [Int] -> Int
-depthIncreased = length . filter (\(a, b) -> a > b) . createPairs
+depthIncreased = length . filter (uncurry (>)) . createPairs
 
 windows depths = zip3 (drop 2 depths ++ [0, 0]) (tail depths ++ [0]) depths
 
