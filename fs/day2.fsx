@@ -27,3 +27,16 @@ let solve (input: seq<string>) =
     let (x, y) = input |> Seq.fold reducer (0, 0)
 
     printf "result is %d" (x * y)
+
+
+let reducer2 ((x, y, aim): int * int * int) (line: string) =
+    match line with
+    | Command "forward" amount -> (x + amount, y + aim * amount, aim)
+    | Command "up" amount -> (x, y, aim - amount)
+    | Command "down" amount -> (x, y, aim + amount)
+    | _ -> (x, y, aim)
+
+let solve2 (input: seq<string>) =
+    let (x, y, _) = input |> Seq.fold reducer2 (0, 0, 0)
+
+    printf "result is %d horizontal position %d depth %d" (x * y) x y
