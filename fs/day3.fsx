@@ -25,10 +25,34 @@ let add1BitCount (index: int) (counts: int []) (line: char []) =
     else
         counts
 
-let solve (input: seq<string>) =
-    let array =
-        input
-        |> Seq.map (fun line -> line.ToCharArray())
-        |> Seq.fold (add1BitCount 0) (Array.zeroCreate 5)
+let all1BitCounts (seq: seq<char []>) (counts: int []) (index: int) =
+    seq |> Seq.fold (add1BitCount index) counts
 
-    printf "result is %d" array.[0]
+let toDecimal (bits: int []) =
+    [| 16; 8; 4; 2; 1 |]
+    |> Array.mapi (fun index value -> value * bits.[index])
+    |> Array.sum
+
+let solve (input: seq<string>) =
+    let charLines =
+        input |> Seq.map (fun line -> line.ToCharArray())
+
+    let inputLength = Seq.length input
+
+    let gammaRate =
+        [| 0; 1; 2; 3; 4 |]
+        |> Array.fold (all1BitCounts charLines) (Array.zeroCreate 5)
+        |> Array.mapi (fun index count1s ->
+            if (count1s * 2 > inputLength) then
+                1
+            else
+                0)
+
+    let epsilonRate =
+        gammaRate
+        |> Array.map (fun bit -> if bit = 1 then 0 else 1)
+
+    let result =
+        (toDecimal gammaRate) * (toDecimal epsilonRate)
+
+    printf "result is %d" result
