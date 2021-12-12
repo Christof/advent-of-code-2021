@@ -62,3 +62,38 @@ let solve (input: seq<string>) =
         (toDecimal gammaRate) * (toDecimal epsilonRate)
 
     printf "result is %d" result
+
+let calculateMostCommonBits (charLines: seq<char []>) =
+    let inputLength = Seq.length charLines
+
+    let wordLength = Array.length (Seq.head charLines)
+
+    Array.zeroCreate wordLength
+    |> Array.mapi (fun index _ -> index)
+    |> Array.fold (all1BitCounts charLines) (Array.zeroCreate wordLength)
+    |> Array.mapi (fun index count1s ->
+        if (count1s * 2 >= inputLength) then
+            '1'
+        else
+            '0')
+
+let rec filterByBitCriteria (index: int) (values: seq<char []>) =
+    let mostCommonBits = calculateMostCommonBits values
+
+    let filtered =
+        values
+        |> Seq.filter (fun line -> line.[index] = mostCommonBits.[index])
+
+    if Seq.length filtered = 1 then
+        Seq.head filtered
+    else
+        filterByBitCriteria (index + 1) filtered
+
+let solve2 (input: seq<string>) =
+    let charLines =
+        input |> Seq.map (fun line -> line.ToCharArray())
+
+
+    let oxygenGeneratorRating = filterByBitCriteria 0 charLines
+
+    printf "result is %A" oxygenGeneratorRating
