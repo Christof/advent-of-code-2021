@@ -15,7 +15,7 @@ let exampleInput =
 
 let lines = exampleInput.Split '\n'
 
-let input = lines
+let input = System.IO.File.ReadLines("fs/day3.txt")
 
 
 let add1BitCount (index: int) (counts: int []) (line: char []) =
@@ -29,7 +29,10 @@ let all1BitCounts (seq: seq<char []>) (counts: int []) (index: int) =
     seq |> Seq.fold (add1BitCount index) counts
 
 let toDecimal (bits: int []) =
-    [| 16; 8; 4; 2; 1 |]
+    let maxExp = (Array.length bits) - 1
+
+    bits
+    |> Array.mapi (fun index _ -> 1 <<< (maxExp - index))
     |> Array.mapi (fun index value -> value * bits.[index])
     |> Array.sum
 
@@ -39,9 +42,12 @@ let solve (input: seq<string>) =
 
     let inputLength = Seq.length input
 
+    let wordLength = Array.length (Seq.head charLines)
+
     let gammaRate =
-        [| 0; 1; 2; 3; 4 |]
-        |> Array.fold (all1BitCounts charLines) (Array.zeroCreate 5)
+        Array.zeroCreate wordLength
+        |> Array.mapi (fun index _ -> index)
+        |> Array.fold (all1BitCounts charLines) (Array.zeroCreate wordLength)
         |> Array.mapi (fun index count1s ->
             if (count1s * 2 > inputLength) then
                 1
