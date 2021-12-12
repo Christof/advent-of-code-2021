@@ -36,18 +36,22 @@ let toDecimal (bits: int []) =
     |> Array.mapi (fun index value -> value * bits.[index])
     |> Array.sum
 
+let calculateBitCounts (charLines: seq<char []>) =
+    let wordLength = Array.length (Seq.head charLines)
+
+    Array.zeroCreate wordLength
+    |> Array.mapi (fun index _ -> index)
+    |> Array.fold (all1BitCounts charLines) (Array.zeroCreate wordLength)
+
 let solve (input: seq<string>) =
     let charLines =
         input |> Seq.map (fun line -> line.ToCharArray())
 
     let inputLength = Seq.length input
 
-    let wordLength = Array.length (Seq.head charLines)
-
     let gammaRate =
-        Array.zeroCreate wordLength
-        |> Array.mapi (fun index _ -> index)
-        |> Array.fold (all1BitCounts charLines) (Array.zeroCreate wordLength)
+        charLines
+        |> calculateBitCounts
         |> Array.mapi (fun index count1s ->
             if (count1s * 2 > inputLength) then
                 1
@@ -63,14 +67,12 @@ let solve (input: seq<string>) =
 
     printf "result is %d" result
 
+
 let calculateMostCommonBits (charLines: seq<char []>) =
     let inputLength = Seq.length charLines
 
-    let wordLength = Array.length (Seq.head charLines)
-
-    Array.zeroCreate wordLength
-    |> Array.mapi (fun index _ -> index)
-    |> Array.fold (all1BitCounts charLines) (Array.zeroCreate wordLength)
+    charLines
+    |> calculateBitCounts
     |> Array.mapi (fun index count1s ->
         if (count1s * 2 >= inputLength) then
             '1'
@@ -80,11 +82,8 @@ let calculateMostCommonBits (charLines: seq<char []>) =
 let calculateLeastCommonBits (charLines: seq<char []>) =
     let inputLength = Seq.length charLines
 
-    let wordLength = Array.length (Seq.head charLines)
-
-    Array.zeroCreate wordLength
-    |> Array.mapi (fun index _ -> index)
-    |> Array.fold (all1BitCounts charLines) (Array.zeroCreate wordLength)
+    charLines
+    |> calculateBitCounts
     |> Array.mapi (fun index count1s ->
         if (count1s * 2 < inputLength) then
             '1'
