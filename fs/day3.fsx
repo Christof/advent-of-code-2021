@@ -77,6 +77,20 @@ let calculateMostCommonBits (charLines: seq<char []>) =
         else
             '0')
 
+let calculateLeastCommonBits (charLines: seq<char []>) =
+    let inputLength = Seq.length charLines
+
+    let wordLength = Array.length (Seq.head charLines)
+
+    Array.zeroCreate wordLength
+    |> Array.mapi (fun index _ -> index)
+    |> Array.fold (all1BitCounts charLines) (Array.zeroCreate wordLength)
+    |> Array.mapi (fun index count1s ->
+        if (count1s * 2 < inputLength) then
+            '1'
+        else
+            '0')
+
 let rec filterByBitCriteria (index: int) (values: seq<char []>) =
     let mostCommonBits = calculateMostCommonBits values
 
@@ -89,11 +103,35 @@ let rec filterByBitCriteria (index: int) (values: seq<char []>) =
     else
         filterByBitCriteria (index + 1) filtered
 
+let rec filterByBitCriteria2 (index: int) (values: seq<char []>) =
+    let leastCommonBits = calculateLeastCommonBits values
+
+    let filtered =
+        values
+        |> Seq.filter (fun line -> (line.[index] = leastCommonBits.[index]))
+
+    if Seq.length filtered = 1 then
+        Seq.head filtered
+    else
+        filterByBitCriteria2 (index + 1) filtered
+
 let solve2 (input: seq<string>) =
     let charLines =
         input |> Seq.map (fun line -> line.ToCharArray())
 
 
-    let oxygenGeneratorRating = filterByBitCriteria 0 charLines
+    let oxygenGeneratorRating =
+        filterByBitCriteria 0 charLines
+        |> Array.map (fun value -> if value = '1' then 1 else 0)
 
-    printf "result is %A" oxygenGeneratorRating
+    let co2ScrubberRating =
+        filterByBitCriteria2 0 charLines
+        |> Array.map (fun value -> if value = '1' then 1 else 0)
+
+    printf "oxygen generator rating is %A\nco2 scrubbing rating is %A\n" oxygenGeneratorRating co2ScrubberRating
+
+    let result =
+        (toDecimal oxygenGeneratorRating)
+        * (toDecimal co2ScrubberRating)
+
+    printf "result is %d" result
