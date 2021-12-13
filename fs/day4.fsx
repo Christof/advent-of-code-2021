@@ -38,13 +38,65 @@ let rec readBoards (lines: seq<string>) (boards: seq<string [,]>) =
 
         readBoards (lines |> Seq.skip 6) (Seq.append boards [ board ])
 
+let markBoard (board: string [,]) (draw: string) =
+    board
+    |> Array2D.map (fun cell -> if draw = cell then "*" + cell else cell)
+
+let mark (boards: seq<string [,]>) (draw: string) =
+    boards
+    |> Seq.map (fun board -> markBoard board draw)
+
+let hasBoardWon (board: string [,]) =
+    [ 0 .. 4 ]
+    |> Seq.exists (fun row ->
+        board.[row, *]
+        |> Seq.forall (fun cell -> cell.StartsWith('*')))
+    || [ 0 .. 4 ]
+       |> Seq.exists (fun col ->
+           board.[*, col]
+           |> Seq.forall (fun cell -> cell.StartsWith('*')))
+
+let rec drawUntilWinner (draws: seq<string>) (boards: seq<string [,]>) =
+    let markedBoards = mark boards (Seq.head draws)
+    let winningBoard = Seq.filter hasBoardWon markedBoards
+
+    if (not <| Seq.isEmpty winningBoard) then
+        (Seq.head winningBoard, Seq.head draws)
+    else
+        drawUntilWinner (Seq.skip 1 draws) (markedBoards)
+
+let flat2Darray board =
+    seq {
+        for x in [ 0 .. (Array2D.length1 board) - 1 ] do
+            for y in [ 0 .. (Array2D.length2 board) - 1 ] do
+                yield board.[x, y]
+    }
+
+let calculateBoardSum (board: string [,]) =
+    board
+    |> Array2D.map (fun cell ->
+        if cell.StartsWith('*') then
+            0
+        else
+            int cell)
+    |> flat2Darray
+    |> Seq.sum
+
 
 let solve (input: seq<string>) =
     let draws = (Seq.head input).Split(',')
 
     let boardLines = input |> Seq.skip 1
     let boards = readBoards boardLines Seq.empty
-    printf "draws %A" boards
+
+    let (winningBoard, draw) = drawUntilWinner draws boards
+
+    let score =
+        (calculateBoardSum winningBoard) * (int draw)
+
+    printf "score %d" score
+
+    score
 
 
 solve lines
