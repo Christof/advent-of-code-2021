@@ -22,6 +22,9 @@ let exampleInput =
 
 let lines = exampleInput.Split '\n'
 
+let input =
+    System.IO.File.ReadLines("inputs/day4.txt")
+
 let rec readBoards (lines: seq<string>) (boards: seq<string [,]>) =
     if Seq.isEmpty lines then
         boards
@@ -100,3 +103,5 @@ let solve (input: seq<string>) =
 
 
 solve lines
+
+solve input
