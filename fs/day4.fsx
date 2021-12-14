@@ -105,3 +105,41 @@ let solve (input: seq<string>) =
 solve lines
 
 solve input
+
+
+let rec drawUntilLastWinner (draws: seq<string>) (boards: seq<string [,]>) =
+    let markedBoards = mark boards (Seq.head draws)
+    let winningBoard = Seq.filter hasBoardWon markedBoards
+
+    let remainingBoards =
+        Seq.filter (fun board -> not <| hasBoardWon board) markedBoards
+
+    printf "remaining draws %d\n" <| Seq.length draws
+
+    if (Seq.isEmpty draws || Seq.isEmpty boards) then
+        raise (System.ArgumentException("Draws or boards where empty before last winner"))
+    else
+
+    if (Seq.isEmpty remainingBoards) then
+        (Seq.head winningBoard, Seq.head draws)
+    else
+        drawUntilLastWinner (Seq.skip 1 draws) (remainingBoards)
+
+let solve2 (input: seq<string>) =
+    let draws = (Seq.head input).Split(',')
+
+    let boardLines = input |> Seq.skip 1
+    let boards = readBoards boardLines Seq.empty
+
+    let (lastBoard, draw) = drawUntilLastWinner draws boards
+
+    let score =
+        (calculateBoardSum lastBoard) * (int draw)
+
+    printf "score %d" score
+
+    score
+
+solve2 lines
+
+solve2 input
