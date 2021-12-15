@@ -7,15 +7,15 @@ let input =
 
 let newState (state: int) = if state = 0 then 6 else state - 1
 
-let simulateDay (states: seq<int>) =
+let simulateDay (states: list<int>) =
     let newFish =
         states
-        |> Seq.where (fun state -> state = 0)
-        |> Seq.map (fun _ -> 8)
+        |> List.where (fun state -> state = 0)
+        |> List.map (fun _ -> 8)
 
-    Seq.append (states |> Seq.map newState) newFish
+    List.append (states |> List.map newState) newFish
 
-let rec simulateDays (state: seq<int>) (remainingDays: int) (day: int) =
+let rec simulateDays (state: list<int>) (remainingDays: int) (day: int) =
     if (remainingDays = 0) then
         state
     else
@@ -24,7 +24,8 @@ let rec simulateDays (state: seq<int>) (remainingDays: int) (day: int) =
         simulateDays newState (remainingDays - 1) (day + 1)
 
 let solve (input: string) =
-    let fish = input.Split(',') |> Seq.map int
+    let fish =
+        input.Split(',') |> Seq.map int |> Seq.toList
 
     printf "fish %A\n" <| Seq.toList fish
 
@@ -37,4 +38,4 @@ let solve (input: string) =
 
 
 solve exampleInput
-//solve input
+solve input
