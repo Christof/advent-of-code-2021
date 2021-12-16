@@ -27,7 +27,7 @@ let rec fishSum (state: int) (remainingDays: int) =
     let days = remainingDays - 1
 
     if (remainingDays <= 0) then
-        1
+        uint64 1
     else if state = 0 then
         (fishSum 0 (days - 6)) + (fishSum 0 (days - 8))
     else
@@ -58,11 +58,18 @@ let solve2 (input: string) =
 
     printf "fish %A\n" <| Seq.toList fish
 
+    let samples = [ 1; 2; 3; 4; 5 ]
+
+    let sampleResult =
+        samples
+        |> List.map (fun state -> fishSum state 256)
+
     let sum =
         fish
-        |> List.map (fun state -> fishSum state 256)
+        |> List.map (fun state -> sampleResult.[state - 1])
         |> List.sum
 
     printf "sum %d\n" sum
 
 // solve2 exampleInput
+solve2 input
