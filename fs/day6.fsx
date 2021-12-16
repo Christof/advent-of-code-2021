@@ -23,15 +23,26 @@ let rec simulateDays (state: list<int>) (remainingDays: int) (day: int) =
 
         simulateDays newState (remainingDays - 1) (day + 1)
 
+let rec fishSum (state: int) (remainingDays: int) =
+    let days = remainingDays - 1
+
+    if (remainingDays <= 0) then
+        1
+    else if state = 0 then
+        (fishSum 0 (days - 6)) + (fishSum 0 (days - 8))
+    else
+        fishSum (state - 1) days
+
 let solve (input: string) =
     let fish =
         input.Split(',') |> Seq.map int |> Seq.toList
 
     printf "fish %A\n" <| Seq.toList fish
 
-    let finalState = simulateDays fish 80 0
-    printf "final %A\n" <| Seq.toList finalState
-    let sum = Seq.length finalState
+    let sum =
+        fish
+        |> List.map (fun state -> fishSum state 80)
+        |> List.sum
 
     printf "sum %d\n" sum
 
@@ -39,3 +50,19 @@ let solve (input: string) =
 
 solve exampleInput
 solve input
+
+
+let solve2 (input: string) =
+    let fish =
+        input.Split(',') |> Seq.map int |> Seq.toList
+
+    printf "fish %A\n" <| Seq.toList fish
+
+    let sum =
+        fish
+        |> List.map (fun state -> fishSum state 256)
+        |> List.sum
+
+    printf "sum %d\n" sum
+
+// solve2 exampleInput
