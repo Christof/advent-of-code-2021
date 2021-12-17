@@ -36,3 +36,94 @@ let solve (input: seq<string>) =
 
 solve exampleInput2
 solve input
+
+
+let includesOtherSegmentsChar (other: array<char>) (test: string) =
+    other
+    |> Array.forall (fun otherChar -> test.Contains(otherChar))
+
+let includesOtherSegments (other: string) (test: string) =
+    includesOtherSegmentsChar (other.ToCharArray()) test
+
+let getSignalPattern (i: array<string>) =
+    let one = i |> Array.find (fun x -> x.Length = 2)
+    let four = i |> Array.find (fun x -> x.Length = 4)
+    let seven = i |> Array.find (fun x -> x.Length = 3)
+    let eight = i |> Array.find (fun x -> x.Length = 7)
+
+    // length 5
+    let length5 = i |> Array.where (fun x -> x.Length = 5)
+
+    let three =
+        length5
+        |> Array.find (includesOtherSegments seven)
+
+    let fourWithoutOne =
+        four.ToCharArray()
+        |> Array.except (one.ToCharArray())
+
+    let five =
+        length5
+        |> Array.find (includesOtherSegmentsChar fourWithoutOne)
+
+    let two = length5 |> Array.except [ three; five ]
+
+    let length6 = i |> Array.where (fun x -> x.Length = 6)
+
+    let nine =
+        length6
+        |> Array.where (includesOtherSegments seven)
+        |> Array.find (includesOtherSegments four)
+
+    let six =
+        length6
+        |> Array.except [ nine ]
+        |> Array.find (includesOtherSegments five)
+
+    let zero = length6 |> Array.except [ nine; six ]
+
+    [| zero.[0]
+       one
+       two.[0]
+       three
+       four
+       five
+       six
+       seven
+       eight
+       nine |]
+
+let sort (s: string) =
+    s.ToCharArray() |> Array.sort |> System.String
+
+let solveLine (line: string) =
+    let parts = line.Split(" | ")
+    let patternPart = parts.[0].Split(' ')
+    let outputValues = parts.[1].Split(' ')
+
+    let patterns =
+        getSignalPattern patternPart |> Array.map sort
+
+    let decodesValues =
+        outputValues
+        |> Array.map sort
+        |> Array.map (fun output -> patterns |> Array.findIndex (fun p -> p = output))
+
+    let number =
+        1000 * decodesValues.[0]
+        + 100 * decodesValues.[1]
+        + 10 * decodesValues.[2]
+        + decodesValues.[3]
+
+    number
+
+let solve2 (input: seq<string>) =
+    let numbers = input |> Seq.map solveLine
+    printf "numbers %A\n" numbers
+
+    let sum = Seq.sum numbers
+    printf "sum %d\n" sum
+    sum
+
+solve2 (exampleInput2)
+solve2 (input)
