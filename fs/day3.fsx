@@ -15,7 +15,8 @@ let exampleInput =
 
 let lines = exampleInput.Split '\n'
 
-let input = System.IO.File.ReadLines("fs/day3.txt")
+let input =
+    System.IO.File.ReadLines("inputs/day3.txt")
 
 
 let add1BitCount (index: int) (counts: int []) (line: char []) =

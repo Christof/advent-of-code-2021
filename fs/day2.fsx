@@ -8,7 +8,7 @@ forward 2"
 
 let lines = exampleInput.Split '\n'
 
-let input = System.IO.File.ReadLines("fs/day2.txt")
+let input = System.IO.File.ReadLines("inputs/day2.txt")
 
 let (|Command|_|) (p: string) (s: string) =
     if s.StartsWith(p) then
