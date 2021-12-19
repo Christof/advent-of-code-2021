@@ -14,30 +14,33 @@ let input =
 
 let inline charToInt char = int char - int '0'
 
+let getNeighbourhood (map: int [,]) (x: int) (y: int) =
+    let invalid = (-1, -1)
+
+    [ if (x - 1 >= 0) then
+          (x - 1, y)
+      else
+          invalid
+      if (x + 1 < (map.GetLength 0)) then
+          (x + 1, y)
+      else
+          invalid
+      if (y - 1 >= 0) then
+          (x, y - 1)
+      else
+          invalid
+      if (y + 1 < (map.GetLength 1)) then
+          (x, y + 1)
+      else
+          invalid ]
+    |> List.filter (fun (x, _) -> x >= 0)
+
 
 let isLowPoint (map: int [,]) (x: int) (y: int) =
     let value = map.[x, y]
 
-    let valuesToCompare =
-        [ if (x - 1 >= 0) then
-              map.[x - 1, y]
-          else
-              value + 1
-          if (x + 1 < (map.GetLength 0)) then
-              map.[x + 1, y]
-          else
-              value + 1
-          if (y - 1 >= 0) then
-              map.[x, y - 1]
-          else
-              value + 1
-          if (y + 1 < (map.GetLength 1)) then
-              map.[x, y + 1]
-          else
-              value + 1 ]
-
-    valuesToCompare
-    |> List.forall (fun compare -> compare > value)
+    getNeighbourhood map x y
+    |> List.forall (fun (x, y) -> map.[x, y] > value)
 
 
 let flat2Darray array2D =
