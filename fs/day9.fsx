@@ -22,6 +22,13 @@ let getNeighbourhood (map: int [,]) (x: int) (y: int) =
       if (y + 1 < (map.GetLength 1)) then
           yield (x, y + 1) ]
 
+let getFullNeighbourhood (map: int [,]) (x: int) (y: int) =
+    seq {
+        yield (x - 1, y)
+        yield (x + 1, y)
+        yield (x, y - 1)
+        yield (x, y + 1)
+    }
 
 let isLowPoint (map: int [,]) (x: int) (y: int) =
     let value = map.[x, y]
@@ -64,23 +71,19 @@ solve input
 
 
 let rec basinSize (map: int [,]) (x: int) (y: int) (basinCoordsList: list<int * int>) =
-    // printf "basinSize x %d y %d list %A\n" x y basinCoordsList
+    let neighbourhood = getFullNeighbourhood map x y
 
-    if (map.[x, y] = 9) then
-        // printf "\texit 9\n"
-        List.empty
-    else
-        // printf "\tincreaseBasen\n"
-        let neighbourhood = getNeighbourhood map x y
+    let updatedList = List.append basinCoordsList [ (x, y) ]
+    Array2D.set map x y -1
 
-        let updatedList = List.append basinCoordsList [ (x, y) ]
-
-        neighbourhood
-        |> List.filter (fun point -> not <| List.contains point updatedList)
-        |> List.map (fun (x, y) -> basinSize map x y updatedList)
-        |> List.concat
-        |> List.append updatedList
-// |> List.distinct
+    neighbourhood
+    |> Seq.filter (fun (x, y) -> map.[x, y] <> -1)
+    |> Seq.filter (fun point -> not <| List.contains point updatedList)
+    |> Seq.filter (fun (x, y) -> map.[x, y] <> 9)
+    |> Seq.map (fun (x, y) -> basinSize map x y updatedList)
+    |> List.concat
+    |> List.append updatedList
+    |> List.distinct
 
 
 
@@ -89,8 +92,13 @@ let solve2 (input: array<string>) =
         input
         |> Array.map (fun line -> line.ToCharArray() |> Array.map charToInt)
 
-    let map =
+    let rawMap =
         Array2D.init<int> input.Length input.[0].Length (fun x y -> intArray.[x].[y])
+
+    let map =
+        Array2D.init<int> (input.Length + 2) (input.[0].Length + 2) (fun _ _ -> 9)
+
+    Array2D.blit rawMap 0 0 map 1 1 input.Length input.[0].Length
 
     let lowPointsMap =
         map
@@ -109,13 +117,7 @@ let solve2 (input: array<string>) =
 
     let basinSizes =
         lowPoints
-        // |> Seq.take 3
-        |> Seq.mapi (fun index (d, x, y) ->
-            printf "i %d d %d x %d y %d\n" index d x y
-
-            basinSize map x y List.empty
-            |> List.distinct
-            |> Seq.length)
+        |> Seq.mapi (fun index (d, x, y) -> basinSize map x y List.empty |> Seq.length)
 
     let threeLargest =
         basinSizes
