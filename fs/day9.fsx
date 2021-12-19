@@ -15,25 +15,12 @@ let input =
 let inline charToInt char = int char - int '0'
 
 let getNeighbourhood (map: int [,]) (x: int) (y: int) =
-    let invalid = (-1, -1)
-
-    [ if (x - 1 >= 0) then
-          (x - 1, y)
-      else
-          invalid
+    [ if (x - 1 >= 0) then yield (x - 1, y)
       if (x + 1 < (map.GetLength 0)) then
-          (x + 1, y)
-      else
-          invalid
-      if (y - 1 >= 0) then
-          (x, y - 1)
-      else
-          invalid
+          yield (x + 1, y)
+      if (y - 1 >= 0) then yield (x, y - 1)
       if (y + 1 < (map.GetLength 1)) then
-          (x, y + 1)
-      else
-          invalid ]
-    |> List.filter (fun (x, _) -> x >= 0)
+          yield (x, y + 1) ]
 
 
 let isLowPoint (map: int [,]) (x: int) (y: int) =
