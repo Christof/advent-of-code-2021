@@ -65,3 +65,40 @@ let solve (input: seq<string>) =
 
 solve lines
 solve input
+
+
+let getPointsFor2 (char: char) =
+    match char with
+    | '(' -> 1
+    | '[' -> 2
+    | '{' -> 3
+    | '<' -> 4
+    | _ -> raise (System.ArgumentException("Invalid character"))
+
+let getPointsForFixing (completion: List<char>) =
+    completion
+    |> List.map getPointsFor2
+    |> List.map uint64
+    |> List.fold (fun pointsAcc points -> (uint64 5) * pointsAcc + points) (uint64 0)
+
+let solve2 (input: seq<string>) =
+    let points =
+        input
+        |> Seq.map getFirstCorruptCharacter
+        |> Seq.filter (fun (_, firstCorruptChar) -> firstCorruptChar = ' ')
+        |> Seq.map fst
+        |> Seq.map getPointsForFixing
+
+    printf "points: %A\n" (points |> Seq.toList)
+
+    let middle =
+        points
+        |> Seq.sort
+        |> Seq.skip ((Seq.length points) / 2)
+        |> Seq.head
+
+    printf "middle: %d\n" middle
+    middle
+
+solve2 lines
+solve2 input
