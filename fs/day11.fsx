@@ -86,3 +86,34 @@ let solve (input: array<string>) =
 
 solve lines // 1656
 solve input // 1739
+
+
+
+let solve2 (input: array<string>) =
+    let intArray =
+        input
+        |> Array.map (fun line -> line.ToCharArray() |> Array.map charToInt)
+
+    let energyLevels =
+        Array2D.init<int> 10 10 (fun x y -> intArray.[x].[y])
+
+    let (finalState, stepsTaken, _) =
+        { 1 .. 800 }
+        |> Seq.fold
+            (fun (state, stepCount, finished) _ ->
+                if (finished) then
+                    (state, stepCount, finished)
+                else
+                    let (newState, flashCount) = step state
+
+                    if (flashCount = 100) then
+                        (newState, stepCount + 1, true)
+                    else
+                        (newState, stepCount + 1, false))
+            (energyLevels, 0, false)
+
+    printf "result %A\n" finalState
+    stepsTaken
+
+solve2 lines // 195
+solve2 input // 324
