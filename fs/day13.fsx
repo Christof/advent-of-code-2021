@@ -21,7 +21,34 @@ let exampleInput =
 fold along y=7
 fold along x=5"
 
+let input =
+    System.IO.File.ReadLines("inputs/day13.txt")
+
 let lines = exampleInput.Split("\n")
+
+let foldY (map: char [,]) (y: int) =
+    let l1 = Array2D.length1 map
+    let l1New = l1 / 2
+    let l2 = Array2D.length2 map
+
+    Array2D.init<char> l1New l2 (fun x y ->
+
+        if (map.[x, y] = '#' || map.[l1 - x - 1, y] = '#') then
+            '#'
+        else
+            '.')
+
+let foldX (map: char [,]) (x: int) =
+    let l1 = Array2D.length1 map
+    let l2 = Array2D.length2 map
+    let l2New = l2 / 2
+
+    Array2D.init<char> l1 l2New (fun x y ->
+
+        if (map.[x, y] = '#' || map.[x, l2 - y - 1] = '#') then
+            '#'
+        else
+            '.')
 
 let solve (input: seq<string>) =
     let mapInput =
@@ -34,13 +61,38 @@ let solve (input: seq<string>) =
     let maxX = mapInput |> Seq.map fst |> Seq.max
     let maxY = mapInput |> Seq.map snd |> Seq.max
 
+    let folds =
+        input
+        |> Seq.skipWhile (fun line -> line.Length > 0)
+        |> Seq.skip 1
+
     let map =
         Array2D.init<char> (maxY + 1) (maxX + 1) (fun x y -> '.')
 
     mapInput
     |> Seq.iter (fun (x, y) -> Array2D.set map y x '#')
 
-    printf "%A\n" map
+    let folded =
+        folds
+        |> Seq.take 1
+        |> Seq.fold
+            (fun m fold ->
+                if fold.Contains('x') then
+                    foldX m 0
+                else
+                    foldY m 0)
+            map
+
+    let mutable dotCount = 0
+
+    folded
+    |> Array2D.iter (fun value ->
+        if value = '#' then
+            dotCount <- dotCount + 1)
+
+    printf "%d\n" dotCount
+    dotCount
 
 
-solve lines
+solve lines // 17
+solve input // 759
