@@ -96,3 +96,67 @@ let solve (input: seq<string>) =
 
 solve lines // 17
 solve input // 759
+
+let print (map: char [,]) =
+    for x in [ 0 .. (Array2D.length1 map) - 1 ] do
+        printf "\n"
+
+        for y in [ 0 .. (Array2D.length2 map) - 1 ] do
+            printf
+                "%c"
+                (if map.[x, y] = '#' then
+                     '\u2588'
+                 else
+                     '.')
+
+let getMaxCoordFromFold (foldLine: string) =
+    let foldNumber =
+        int
+        <| foldLine.Substring(foldLine.IndexOf('=') + 1)
+
+    2 * foldNumber
+
+let solve2 (input: seq<string>) =
+    let mapInput =
+        input
+        |> Seq.takeWhile (fun line -> line.Length > 0)
+        |> Seq.map (fun line ->
+            let coords = line.Split(',')
+            (int coords.[0], int coords.[1]))
+
+
+    let folds =
+        input
+        |> Seq.skipWhile (fun line -> line.Length > 0)
+        |> Seq.skip 1
+
+    let firstXFold =
+        folds |> Seq.find (fun line -> line.Contains 'x')
+
+    let maxX = getMaxCoordFromFold firstXFold
+
+    let firstYFold =
+        folds |> Seq.find (fun line -> line.Contains 'y')
+
+    let maxY = getMaxCoordFromFold firstYFold
+
+    let map =
+        Array2D.init<char> (maxY + 1) (maxX + 1) (fun x y -> '.')
+
+    mapInput
+    |> Seq.iter (fun (x, y) -> Array2D.set map y x '#')
+
+    let folded =
+        folds
+        |> Seq.fold
+            (fun m fold ->
+                if fold.Contains('x') then
+                    foldX m 0
+                else
+                    foldY m 0)
+            map
+
+    print folded
+
+solve2 lines
+solve2 input // HECRZKPR
