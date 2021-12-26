@@ -29,20 +29,14 @@ let simulateStep (polymer: string) (rules: array<string>) =
     for i in [ 0 .. (polymer.Length) - 2 ] do
         let pair = polymer.Substring(i, 2)
 
-        let ruleIndex =
+        let rule =
             rules
-            |> Array.findIndex (fun rule -> rule.StartsWith(pair))
+            |> Array.find (fun rule -> rule.StartsWith(pair))
 
-        if (ruleIndex >= 0) then
-            let rule = rules.[ruleIndex]
-
-            output <-
-                output
-                + rule.Substring(rule.Length - 1)
-                + (string pair.[1])
-        else
-            printf "\n no rule found\n"
-            output <- output + (string pair.[1])
+        output <-
+            output
+            + rule.Substring(rule.Length - 1)
+            + (string pair.[1])
 
     output
 
@@ -71,8 +65,9 @@ let solve (input: seq<string>) (steps: int) =
     diff
 
 solve lines 10 // 1588
+// solve input 10 // 2915
 let stopWatch = System.Diagnostics.Stopwatch.StartNew()
-solve input 10 // 2915
+solve input 12 // 12085
 stopWatch.Stop()
 printfn "time: %f ms" stopWatch.Elapsed.TotalMilliseconds
 
