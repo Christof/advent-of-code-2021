@@ -23,22 +23,19 @@ let lines = exampleInput.Split('\n')
 let input =
     System.IO.File.ReadLines("inputs/day14.txt")
 
-let simulateStep (polymer: array<char>) (rules: array<string>) =
+let inline getKey (a: char) (b: char) = (int a) * 256 + (int b)
+
+let simulateStep (polymer: array<char>) (rules: Map<int, char>) =
     let output =
         Array.create (2 * polymer.Length - 1) ' '
 
     Array.set output 0 polymer.[0]
 
     for i = 0 to (polymer.Length - 2) do
-        let pair =
-            [| polymer.[i]; polymer.[i + 1] |]
-            |> System.String
+        let char =
+            rules.[getKey polymer.[i] polymer.[i + 1]]
 
-        let rule =
-            rules
-            |> Array.find (fun rule -> rule.StartsWith(pair))
-
-        Array.set output (i * 2 + 1) (rule.Substring(rule.Length - 1).ToCharArray().[0])
+        Array.set output (i * 2 + 1) char
         Array.set output (i * 2 + 2) (polymer.[i + 1])
 
 
@@ -51,9 +48,21 @@ let solve (input: seq<string>) (steps: int) =
 
     let pairInsertionRules = input |> Seq.skip 2 |> Seq.toArray
 
+    let rulesMap =
+        pairInsertionRules
+        |> Array.map (fun rule ->
+            let startChars = rule.Substring(0, 2).ToCharArray()
+
+            let toChar =
+                rule.Substring(rule.Length - 1).ToCharArray().[0]
+
+            (getKey startChars.[0] startChars.[1], toChar))
+        |> Map
+
+
     let polymer =
         { 1 .. steps }
-        |> Seq.fold (fun p i -> simulateStep p pairInsertionRules) (polymerTemplate.ToCharArray())
+        |> Seq.fold (fun p i -> simulateStep p rulesMap) (polymerTemplate.ToCharArray())
 
     printf "%A\n" polymer
 
