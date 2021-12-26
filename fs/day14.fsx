@@ -60,9 +60,7 @@ let solve (input: seq<string>) (steps: int) =
     printf "%s\n" polymer
 
     let frequencies =
-        polymer.ToCharArray()
-        |> Array.groupBy id
-        |> Array.map (fun (c, occ) -> (c, Seq.length occ))
+        polymer.ToCharArray() |> Array.countBy id
 
     let max = frequencies |> Array.maxBy snd |> snd
     let min = frequencies |> Array.minBy snd |> snd
