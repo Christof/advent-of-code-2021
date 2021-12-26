@@ -48,13 +48,13 @@ let simulateStep (polymer: string) (rules: array<string>) =
 
 
 
-let solve (input: seq<string>) =
+let solve (input: seq<string>) (steps: int) =
     let polymerTemplate = Seq.head input
 
     let pairInsertionRules = input |> Seq.skip 2 |> Seq.toArray
 
     let polymer =
-        { 1 .. 10 }
+        { 1 .. steps }
         |> Seq.fold (fun p i -> simulateStep p pairInsertionRules) polymerTemplate
 
     printf "%s\n" polymer
@@ -67,9 +67,15 @@ let solve (input: seq<string>) =
     let max = frequencies |> Array.maxBy snd |> snd
     let min = frequencies |> Array.minBy snd |> snd
 
-    printf "frequencies %A\n" frequencies
+    let diff = max - min
+    printf "frequencies %A\nresult %d\n" frequencies diff
 
-    max - min
+    diff
 
-solve lines // 1588
-solve input // 2915
+solve lines 10 // 1588
+let stopWatch = System.Diagnostics.Stopwatch.StartNew()
+solve input 10 // 2915
+stopWatch.Stop()
+printfn "time: %f ms" stopWatch.Elapsed.TotalMilliseconds
+
+// solve lines 40 // 2188189693529
