@@ -76,6 +76,16 @@ let solve (input: seq<string>) (steps: int) =
 
     diff
 
+
+let rec simulateLengths (length: uint64) (remainingSteps: int) =
+    if (remainingSteps = 0) then
+        length
+    else
+        simulateLengths (length * (uint64 2) - (uint64 1)) (remainingSteps - 1)
+
+(simulateLengths (uint64 4) 40)
+/ (uint64 System.Int32.MaxValue)
+
 solve lines 10 // 1588
 // solve input 10 // 2915
 let stopWatch = System.Diagnostics.Stopwatch.StartNew()
