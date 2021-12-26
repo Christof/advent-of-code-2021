@@ -29,19 +29,17 @@ let simulateStep (polymer: array<char>) (rules: array<string>) =
 
     Array.set output 0 polymer.[0]
 
-    let mutable index = 1
-
-    for pairChar in (polymer |> Array.windowed 2) do
-        let pair = pairChar |> System.String
+    for i = 0 to (polymer.Length - 2) do
+        let pair =
+            [| polymer.[i]; polymer.[i + 1] |]
+            |> System.String
 
         let rule =
             rules
             |> Array.find (fun rule -> rule.StartsWith(pair))
 
-        Array.set output index (rule.Substring(rule.Length - 1).ToCharArray().[0])
-        Array.set output (index + 1) (pairChar.[1])
-
-        index <- index + 2
+        Array.set output (i * 2 + 1) (rule.Substring(rule.Length - 1).ToCharArray().[0])
+        Array.set output (i * 2 + 2) (polymer.[i + 1])
 
 
     output
