@@ -23,25 +23,28 @@ let lines = exampleInput.Split('\n')
 let input =
     System.IO.File.ReadLines("inputs/day14.txt")
 
-let simulateStep (polymer: list<char>) (rules: array<string>) =
-    let mutable output = [ List.head polymer ]
+let simulateStep (polymer: array<char>) (rules: array<string>) =
+    let output =
+        Array.create (2 * polymer.Length - 1) ' '
 
-    for pairChar in (polymer |> List.windowed 2) do
-        let pair =
-            pairChar |> List.toArray |> System.String
+    Array.set output 0 polymer.[0]
+
+    let mutable index = 1
+
+    for pairChar in (polymer |> Array.windowed 2) do
+        let pair = pairChar |> System.String
 
         let rule =
             rules
             |> Array.find (fun rule -> rule.StartsWith(pair))
 
-        output <-
-            rule.Substring(rule.Length - 1).ToCharArray().[0]
-            :: output
+        Array.set output index (rule.Substring(rule.Length - 1).ToCharArray().[0])
+        Array.set output (index + 1) (pairChar.[1])
 
-        output <- (pairChar |> List.skip 1 |> List.head) :: output
+        index <- index + 2
 
 
-    List.rev output
+    output
 
 
 
@@ -52,14 +55,14 @@ let solve (input: seq<string>) (steps: int) =
 
     let polymer =
         { 1 .. steps }
-        |> Seq.fold (fun p i -> simulateStep p pairInsertionRules) (polymerTemplate.ToCharArray() |> Array.toList)
+        |> Seq.fold (fun p i -> simulateStep p pairInsertionRules) (polymerTemplate.ToCharArray())
 
     printf "%A\n" polymer
 
-    let frequencies = polymer |> List.countBy id
+    let frequencies = polymer |> Array.countBy id
 
-    let max = frequencies |> List.maxBy snd |> snd
-    let min = frequencies |> List.minBy snd |> snd
+    let max = frequencies |> Array.maxBy snd |> snd
+    let min = frequencies |> Array.minBy snd |> snd
 
     let diff = max - min
     printf "frequencies %A\nresult %d\n" frequencies diff
