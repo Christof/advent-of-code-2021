@@ -60,16 +60,61 @@ let solve (input: seq<string>) (steps: int) =
         |> Map
 
 
+    let initialState = [ (polymerTemplate.ToCharArray()) ]
+
+    let mutable splitPolymer = Array.empty
+
     let polymer =
         { 1 .. steps }
-        |> Seq.fold (fun p i -> simulateStep p rulesMap) (polymerTemplate.ToCharArray())
+        |> Seq.fold
+            (fun p i ->
+                printf "%d\n" i
 
-    printf "%A\n" polymer
+                if (List.length p = 1)
+                   && (Array.length (List.head p) > (System.Int32.MaxValue / 64)) then
+                    let splits =
+                        (List.head p) |> Array.windowed 2 |> Array.toList
 
-    let frequencies = polymer |> Array.countBy id
+                    printf "split with %A" splits
+                    splitPolymer <- (List.head p)
 
-    let max = frequencies |> Array.maxBy snd |> snd
-    let min = frequencies |> Array.minBy snd |> snd
+                    splits
+                    |> List.map (fun s -> simulateStep s rulesMap)
+                else
+                    p |> List.map (fun s -> simulateStep s rulesMap))
+            initialState
+
+    printf "\nfinal: \n%A\n" polymer
+
+    let frequencies =
+        polymer
+        |> List.map (fun p -> p |> Array.countBy id)
+        |> List.reduce (fun a b -> Array.append a b)
+        |> Array.groupBy fst
+        |> Array.map (fun (c, g) -> (c, g |> Array.sumBy snd))
+
+
+    let toSubtract =
+        if (Array.length splitPolymer > 0) then
+            Array.sub splitPolymer 1 (splitPolymer.Length - 2)
+        else
+            Array.empty
+
+    let toSubtractFrequencies = toSubtract |> Array.countBy id
+
+    printf "splitPolymer: %A\n" splitPolymer
+
+    let final =
+        frequencies
+        |> Array.map (fun (char, count) ->
+            printf "%c, " char
+
+            match Array.tryFind (fun (c, _) -> c = char) toSubtractFrequencies with
+            | Some (_, sub) -> (char, count - sub)
+            | None -> (char, count))
+
+    let max = final |> Array.maxBy snd |> snd
+    let min = final |> Array.minBy snd |> snd
 
     let diff = max - min
     printf "frequencies %A\nresult %d\n" frequencies diff
@@ -83,14 +128,15 @@ let rec simulateLengths (length: uint64) (remainingSteps: int) =
     else
         simulateLengths (length * (uint64 2) - (uint64 1)) (remainingSteps - 1)
 
-(simulateLengths (uint64 4) 40)
+(simulateLengths (uint64 20) 40)
+/ (uint64 System.Int32.MaxValue)
 / (uint64 System.Int32.MaxValue)
 
 solve lines 10 // 1588
-// solve input 10 // 2915
+solve input 10 // 2915
 let stopWatch = System.Diagnostics.Stopwatch.StartNew()
 solve input 12 // 12085
 stopWatch.Stop()
 printfn "time: %f ms" stopWatch.Elapsed.TotalMilliseconds
 
-// solve lines 40 // 2188189693529
+solve lines 40 // 2188189693529
