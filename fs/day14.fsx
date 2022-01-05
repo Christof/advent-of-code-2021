@@ -60,53 +60,57 @@ let solve (input: seq<string>) (steps: int) =
         |> Map
 
 
-    let initialState = [ (polymerTemplate.ToCharArray()) ]
-
-    let mutable splitPolymer = Array.empty
-
-    let polymer =
-        { 1 .. steps }
+    let polymerHalfFinished =
+        { 1 .. (steps / 2) }
         |> Seq.fold
             (fun p i ->
                 printf "%d\n" i
 
-                if (List.length p = 1)
-                   && (Array.length (List.head p) > (System.Int32.MaxValue / 64)) then
-                    let splits =
-                        (List.head p) |> Array.windowed 2 |> Array.toList
+                simulateStep p rulesMap)
+            (polymerTemplate.ToCharArray())
 
-                    printf "split with %A" splits
-                    splitPolymer <- (List.head p)
 
-                    splits
-                    |> List.map (fun s -> simulateStep s rulesMap)
-                else
-                    p |> List.map (fun s -> simulateStep s rulesMap))
-            initialState
+    let splits =
+        polymerHalfFinished
+        |> Array.windowed 2
+        |> Array.toList
 
-    printf "\nfinal: \n%A\n" polymer
+    printf "split with %A" splits
+
+    let polymer =
+        splits
+        |> List.toArray
+        |> Array.Parallel.mapi (fun i s ->
+            printf "%d\n" i
+
+            { (steps / 2 + 1) .. steps }
+            |> Seq.fold
+                (fun p i ->
+                    // printf "%d\n" i
+
+                    simulateStep p rulesMap)
+                s
+            |> Array.countBy id)
+
+
 
     let frequencies =
         polymer
-        |> List.map (fun p -> p |> Array.countBy id)
-        |> List.reduce (fun a b -> Array.append a b)
+        |> Array.reduce (fun a b -> Array.append a b)
         |> Array.groupBy fst
         |> Array.map (fun (c, g) -> (c, g |> Array.sumBy snd))
 
 
     let toSubtract =
-        if (Array.length splitPolymer > 0) then
-            Array.sub splitPolymer 1 (splitPolymer.Length - 2)
-        else
-            Array.empty
+        Array.sub polymerHalfFinished 1 (polymerHalfFinished.Length - 2)
 
     let toSubtractFrequencies = toSubtract |> Array.countBy id
 
-    printf "splitPolymer: %A\n" splitPolymer
+    printf "splitPolymer: %A\n" polymerHalfFinished
 
     let final =
         frequencies
-        |> Array.map (fun (char, count) ->
+        |> Array.Parallel.map (fun (char, count) ->
             printf "%c, " char
 
             match Array.tryFind (fun (c, _) -> c = char) toSubtractFrequencies with
