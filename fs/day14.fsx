@@ -42,6 +42,17 @@ let simulateStep (polymer: array<char>) (rules: Map<int, char>) =
     output
 
 
+let mergeMaps (a: Map<char, uint64>) (b: Map<char, int>) =
+    b
+    |> Map.fold
+        (fun acc key value ->
+            if Map.containsKey key acc then
+                Map.add key (acc.[key] + (uint64 value)) acc
+            else
+                Map.add key (uint64 value) acc)
+        a
+
+
 
 let solve (input: seq<string>) (steps: int) =
     let polymerTemplate = Seq.head input
@@ -90,35 +101,35 @@ let solve (input: seq<string>) (steps: int) =
 
                     simulateStep p rulesMap)
                 s
-            |> Array.countBy id)
+            |> Seq.countBy id
+            |> Map)
 
 
 
     let frequencies =
         polymer
-        |> Array.reduce (fun a b -> Array.append a b)
-        |> Array.groupBy fst
-        |> Array.map (fun (c, g) -> (c, g |> Array.sumBy snd))
+        |> Array.fold mergeMaps Map.empty<char, uint64>
 
 
     let toSubtract =
         Array.sub polymerHalfFinished 1 (polymerHalfFinished.Length - 2)
 
-    let toSubtractFrequencies = toSubtract |> Array.countBy id
+    let toSubtractFrequencies = toSubtract |> Array.countBy id |> Map
 
     printf "splitPolymer: %A\n" polymerHalfFinished
 
     let final =
-        frequencies
-        |> Array.Parallel.map (fun (char, count) ->
-            printf "%c, " char
+        toSubtractFrequencies
+        |> Map.fold
+            (fun acc key value ->
+                if Map.containsKey key acc then
+                    Map.add key (acc.[key] - (uint64 value)) acc
+                else
+                    Map.add key (uint64 value) acc)
+            frequencies
 
-            match Array.tryFind (fun (c, _) -> c = char) toSubtractFrequencies with
-            | Some (_, sub) -> (char, count - sub)
-            | None -> (char, count))
-
-    let max = final |> Array.maxBy snd |> snd
-    let min = final |> Array.minBy snd |> snd
+    let max = final |> Map.values |> Seq.max
+    let min = final |> Map.values |> Seq.min
 
     let diff = max - min
     printf "frequencies %A\nresult %d\n" frequencies diff
