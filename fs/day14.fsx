@@ -42,14 +42,14 @@ let simulateStep (polymer: array<char>) (rules: Map<int, char>) =
     output
 
 
-let mergeMaps (a: Map<char, uint64>) (b: Map<char, int>) =
+let mergeMaps (a: Map<char, uint64>) (b: Map<char, uint64>) =
     b
     |> Map.fold
         (fun acc key value ->
             if Map.containsKey key acc then
-                Map.add key (acc.[key] + (uint64 value)) acc
+                Map.add key (acc.[key] + value) acc
             else
-                Map.add key (uint64 value) acc)
+                Map.add key value acc)
         a
 
 
@@ -84,16 +84,14 @@ let solve (input: seq<string>) (steps: int) =
     let splits =
         polymerHalfFinished
         |> Array.windowed 2
-        |> Array.toList
+        |> Array.groupBy id
+        |> Array.map (fun (window, occurences) -> (window, occurences.Length))
 
-    printf "split with %A" splits
+    printf "split with %d with %d unique\n%A\n" polymerHalfFinished.Length splits.Length splits
 
     let polymer =
         splits
-        |> List.toArray
-        |> Array.Parallel.mapi (fun i s ->
-            printf "%d\n" i
-
+        |> Array.Parallel.map (fun (s, count) ->
             { (steps / 2 + 1) .. steps }
             |> Seq.fold
                 (fun p i ->
@@ -102,7 +100,8 @@ let solve (input: seq<string>) (steps: int) =
                     simulateStep p rulesMap)
                 s
             |> Seq.countBy id
-            |> Map)
+            |> Map
+            |> Map.map (fun _key value -> (uint64 value) * (uint64 count)))
 
 
 
@@ -132,7 +131,7 @@ let solve (input: seq<string>) (steps: int) =
     let min = final |> Map.values |> Seq.min
 
     let diff = max - min
-    printf "frequencies %A\nresult %d\n" frequencies diff
+    printf "frequencies %A\nmax: %d min: %d\nresult %d\n" frequencies max min diff
 
     diff
 
@@ -149,9 +148,11 @@ let rec simulateLengths (length: uint64) (remainingSteps: int) =
 
 solve lines 10 // 1588
 solve input 10 // 2915
+solve input 4 // 42
 let stopWatch = System.Diagnostics.Stopwatch.StartNew()
 solve input 12 // 12085
 stopWatch.Stop()
 printfn "time: %f ms" stopWatch.Elapsed.TotalMilliseconds
 
 solve lines 40 // 2188189693529
+solve input 40 // 3353146900153
