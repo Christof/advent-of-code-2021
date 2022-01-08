@@ -17,6 +17,7 @@ let lines = exampleInput.Split('\n')
 
 let input =
     System.IO.File.ReadLines("inputs/day15.txt")
+    |> Seq.toArray
 
 let inline charToInt char = int char - int '0'
 
@@ -84,10 +85,13 @@ let solve (input: array<string>) =
     let map =
         Array2D.init<int> input.Length input.[0].Length (fun x y -> intArray.[x].[y])
 
-    let (dist, prev) =
-        dijkstra map (0, 0) (input.Length - 1, input.[0].Length - 1)
+    let target = (input.Length - 1, input.[0].Length - 1)
+    let (dist, prev) = dijkstra map (0, 0) target
 
-    printf "dist %A" dist
+    printf "dist %A\n" dist
+
+    printf "dist to target %d" dist.[target]
 
 
-solve lines
+solve lines // 40
+solve input // 602
