@@ -93,5 +93,34 @@ let solve (input: array<string>) =
     printf "dist to target %d" dist.[target]
 
 
-solve lines // 40
-solve input // 602
+// solve lines // 40
+// solve input // 602
+
+let wrap n = if (n > 9) then n - 9 else n
+
+let solve2 (input: array<string>) =
+    let intArray =
+        input
+        |> Array.map (fun line -> line.ToCharArray() |> Array.map charToInt)
+
+    let tileX = input.Length
+    let tileY = input.[0].Length
+
+    let map =
+        Array2D.init<int> (5 * tileX) (5 * tileY) (fun x y ->
+            wrap (
+                intArray.[x % tileX].[y % tileY]
+                + x / tileX
+                + y / tileY
+            ))
+
+    printf "%A\n" map
+
+    let target = (5 * tileX - 1, 5 * tileY - 1)
+    let (dist, prev) = dijkstra map (0, 0) target
+
+    printf "dist to target %d\n" dist.[target]
+
+solve2 [| "8" |]
+solve2 lines // 315
+solve2 input // 2935
