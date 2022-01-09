@@ -1,5 +1,7 @@
 let example1 = "D2FE28"
 
+let input =
+    System.IO.File.ReadLines("inputs/day16.txt")
 
 let hexToBin (hex: char) =
     match hex with
@@ -25,6 +27,7 @@ let binToDec (bin: string) = System.Convert.ToInt32(bin, 2)
 
 let windowString (chars: char []) = (Array.skip 1 chars) |> System.String
 
+// taken from https://nbevans.wordpress.com/2014/03/13/really-simple-way-to-split-a-f-sequence-into-chunks-partitions/
 let toChunks n (s: seq<'t>) =
     seq {
         let position = ref 0
@@ -43,7 +46,7 @@ let toChunks n (s: seq<'t>) =
             yield Array.sub buffer 0 position.Value
     }
 
-let parseLiteral (input: string) =
+let parseLiteral version typeId (input: string) =
     let windowedSeq =
         input.ToCharArray() |> Array.toSeq |> toChunks 5
 
@@ -59,9 +62,20 @@ let parseLiteral (input: string) =
         windows
         |> Seq.fold (fun acc window -> acc + (windowString window)) ""
 
-    let literal = binToDec bits
+    printf "windowCount %d bits %s\n" windowCount bits
+    let literal = System.Convert.ToInt64(bits, 2)
 
-    (literal, input.Substring(5 * windowCount))
+    ((version, typeId, literal), input.Substring(5 * windowCount))
+
+let parseOperator version typeId (input: string) =
+    let lengthTypeId = input.[0]
+
+    if lengthTypeId = '0' then
+        // let subPacketsLength = binToDec (input.Substring(1, 15))
+        ((version, typeId, (int64 -1)), input.Substring(16))
+    else
+        // let numberOfSubPackets = binToDec (input.Substring(1, 11))
+        ((version, typeId, (int64 -2)), input.Substring(12))
 
 let parsePacket (input: string) =
     let version = input.Substring(0, 3) |> binToDec
@@ -70,9 +84,22 @@ let parsePacket (input: string) =
     let rest = input.Substring(6)
 
     match typeId with
-    | 4 -> parseLiteral rest
-    | _ -> raise (System.ArgumentException("Invalid typeId"))
+    | 4 -> parseLiteral version typeId rest
+    | _ -> parseOperator version typeId rest
 
+
+let rec parsePackets (input: string) =
+    printf "parsePackets %s\n" input
+
+    let onlyZeros =
+        input.ToCharArray()
+        |> Array.forall (fun c -> c = '0')
+
+    if input.Length > 0 && not onlyZeros then
+        let (result, rest) = parsePacket input
+        result :: (parsePackets rest)
+    else
+        []
 
 
 let solve (input: string) =
@@ -81,7 +108,22 @@ let solve (input: string) =
         |> Array.map hexToBin
         |> Array.reduce (+)
 
-    let (lit, rest) = parsePacket bin
-    printf "lit %d rest %s\n" lit bin
+    let results = parsePackets bin
+
+    let sumOfVersions =
+        results
+        |> List.map (fun (version, _, _) -> version)
+        |> List.sum
+
+    printf "results: %A\n" results
+    printf "sumOfVersions %d\n" sumOfVersions
+    sumOfVersions
 
 solve example1
+solve "38006F45291200"
+solve "8A004A801A8002F478" // 16
+solve "620080001611562C8802118E34" // 12
+solve "C0015000016115A2E0802F182340" // 23
+solve "A0016C880162017C3686B18A3D4780" // 31
+
+solve (Seq.head input) // 947
