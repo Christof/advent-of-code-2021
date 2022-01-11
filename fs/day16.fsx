@@ -222,3 +222,6 @@ solve2 "CE00C43D881120" // maximum of 7, 8, 9 -> 9
 solve2 "F600BC2D8F" // 5 > 15 -> 0
 solve2 "D8005AC2A8F0" // 5 < 15 -> 1
 solve2 "9C005AC2F8F0" // 5 = 15 -> 0
+solve2 "9C0141080250320F1802104A08" // 1 + 3 = 2 * 2 -> 1
+
+solve2 (Seq.head input) // 660797830937
