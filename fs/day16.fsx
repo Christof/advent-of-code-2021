@@ -126,4 +126,87 @@ solve "620080001611562C8802118E34" // 12
 solve "C0015000016115A2E0802F182340" // 23
 solve "A0016C880162017C3686B18A3D4780" // 31
 
-solve (Seq.head input) // 947
+// solve (Seq.head input) // 947
+
+
+
+let rec parseOperator2 version typeId (input: string) reducer =
+    let lengthTypeId = input.[0]
+
+    if lengthTypeId = '0' then
+        let subPacketsLength = binToDec (input.Substring(1, 15))
+
+        let subPackets =
+            parsePackets2 (input.Substring(16, subPacketsLength))
+
+        let subResult =
+            subPackets
+            |> List.map (fun (_, _, value) -> value)
+            |> List.reduce reducer
+
+        printf "lengthTypeId 0 subResult %d\n" subResult
+
+        ((version, typeId, subResult), input.Substring(16 + subPacketsLength))
+    else
+        let numberOfSubPackets = binToDec (input.Substring(1, 11))
+
+        let subPackets =
+            parseNPackets2 (input.Substring(12)) numberOfSubPackets
+
+        let subResult =
+            subPackets
+            |> List.map fst
+            |> List.map (fun (_, _, value) -> value)
+            |> List.reduce reducer
+
+        printf "lengthTypeId 1 subResult %d\n" subResult
+
+        ((version, typeId, subResult), subPackets |> List.last |> snd)
+
+and parsePacket2 (input: string) =
+    let version = input.Substring(0, 3) |> binToDec
+    let typeId = input.Substring(3, 3) |> binToDec
+
+    let rest = input.Substring(6)
+
+    match typeId with
+    | 4 -> parseLiteral version typeId rest
+    | 0 -> parseOperator2 version typeId rest (+)
+    | _ -> parseOperator2 version typeId rest (+)
+
+
+and parsePackets2 (input: string) =
+    printf "parsePackets %s\n" input
+
+    let onlyZeros =
+        input.ToCharArray()
+        |> Array.forall (fun c -> c = '0')
+
+    if input.Length > 0 && not onlyZeros then
+        let (result, rest) = parsePacket2 input
+        result :: (parsePackets2 rest)
+    else
+        []
+
+and parseNPackets2 (input: string) (n: int) =
+    printf "parsePackets %s\n" input
+
+    if n > 0 then
+        let res = parsePacket2 input
+        res :: (parseNPackets2 (snd res) (n - 1))
+    else
+        []
+
+
+let solve2 (input: string) =
+    let bin =
+        input.ToCharArray()
+        |> Array.map hexToBin
+        |> Array.reduce (+)
+
+    let results = parsePackets2 bin
+
+    printf "results: %A\n" results
+
+
+solve2 "C200B40A82" // sum of 1 and 2 -> 3
