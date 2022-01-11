@@ -173,6 +173,8 @@ and parsePacket2 (input: string) =
     | 4 -> parseLiteral version typeId rest
     | 0 -> parseOperator2 version typeId rest (+)
     | 1 -> parseOperator2 version typeId rest (*)
+    | 2 -> parseOperator2 version typeId rest min
+    | 3 -> parseOperator2 version typeId rest max
     | _ -> parseOperator2 version typeId rest (+)
 
 
@@ -212,3 +214,5 @@ let solve2 (input: string) =
 
 solve2 "C200B40A82" // sum of 1 and 2 -> 3
 solve2 "04005AC33890" // product of 6 and 9 -> 54
+solve2 "880086C3E88112" // minimum of 7, 8, 9 -> 7
+solve2 "CE00C43D881120" // maximum of 7, 8, 9 -> 9
