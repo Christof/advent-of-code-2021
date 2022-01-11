@@ -172,6 +172,7 @@ and parsePacket2 (input: string) =
     match typeId with
     | 4 -> parseLiteral version typeId rest
     | 0 -> parseOperator2 version typeId rest (+)
+    | 1 -> parseOperator2 version typeId rest (*)
     | _ -> parseOperator2 version typeId rest (+)
 
 
@@ -210,3 +211,4 @@ let solve2 (input: string) =
 
 
 solve2 "C200B40A82" // sum of 1 and 2 -> 3
+solve2 "04005AC33890" // product of 6 and 9 -> 54
