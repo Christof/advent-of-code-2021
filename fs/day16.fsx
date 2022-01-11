@@ -175,6 +175,9 @@ and parsePacket2 (input: string) =
     | 1 -> parseOperator2 version typeId rest (*)
     | 2 -> parseOperator2 version typeId rest min
     | 3 -> parseOperator2 version typeId rest max
+    | 5 -> parseOperator2 version typeId rest (fun a b -> if a > b then 1 else 0)
+    | 6 -> parseOperator2 version typeId rest (fun a b -> if a < b then 1 else 0)
+    | 7 -> parseOperator2 version typeId rest (fun a b -> if a = b then 1 else 0)
     | _ -> parseOperator2 version typeId rest (+)
 
 
@@ -216,3 +219,6 @@ solve2 "C200B40A82" // sum of 1 and 2 -> 3
 solve2 "04005AC33890" // product of 6 and 9 -> 54
 solve2 "880086C3E88112" // minimum of 7, 8, 9 -> 7
 solve2 "CE00C43D881120" // maximum of 7, 8, 9 -> 9
+solve2 "F600BC2D8F" // 5 > 15 -> 0
+solve2 "D8005AC2A8F0" // 5 < 15 -> 1
+solve2 "9C005AC2F8F0" // 5 = 15 -> 0
