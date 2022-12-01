@@ -1,0 +1,9 @@
+readfile =: 1!:1
+example =. < '/home/christof/Documents/advent-of-code/inputs/2022-day1-example.txt' NB.< '../inputs/2022-day1-example.txt'
+data =. readfile example
+boxedValues =: (< ;. _2) (data , LF)
+boxedValuesWithEmptyEnding =: boxedValues , (< '')
+separators =: boxedValuesWithEmptyEnding e. (< '')
+grouped =: separators < ;. _2 boxedValuesWithEmptyEnding
+sums =: +/ each ". each > each grouped
+max =: >./ (> each sums) NB. not working yet
