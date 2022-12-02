@@ -8,3 +8,6 @@ separators =: boxedValuesWithEmptyEnding e. (< '')
 grouped =: separators < ;. _2 boxedValuesWithEmptyEnding
 sums =: +/ each ". each > each grouped
 max =: >./ > sums NB. input answer is 66719
+
+sortedSums =: /:~  > sums
+max3Sum =: +/ _3 {. sortedSums NB. input answer is 198551
