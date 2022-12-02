@@ -12,12 +12,12 @@ NB. 3 pts for Z (Scissors)
 ownPlays =: > {: each  boxedValues
 pointsFromOwnPlays =: (+/ ownPlays = 'X') + (2 * +/ ownPlays = 'Y') + (3 * +/ ownPlays = 'Z')
 
-NB. 0 pt for loosing
-NB. 3 pts for draw
-NB. 6 pts for win
+NB. 0 pt for loosing (X)
+NB. 3 pts for draw (Y)
+NB. 6 pts for win (Z)
 
-plays =: 'C X'; 'B Z'; 'A Y'; 'A Z'; 'C Y'; 'B X'
-pointsForPlays =: 6 6 6 0 0 0 3
+plays =: 'C X'; 'B Z'; 'A Y'; 'A Z'; 'C Y'; 'B X'; 'A X'; 'B Y'; 'C Z'
+pointsForPlays =: 6 6 6 0 0 0 3 3 3
 
 pointsFromResults =: +/ (plays i. boxedValues) { pointsForPlays
 
