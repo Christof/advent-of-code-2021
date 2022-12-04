@@ -21,3 +21,19 @@ letters =. lowercaseLetters , uppercaseLetters
 
 NB. lookup is zero-based, so we add the length of sharedItems
 sumOfPriorities =. ($ sharedItems) + +/ letters i. > sharedItems NB.input answer is 7674
+
+trios =. _3 <\ boxedValues
+
+badgeItem =. 3 : 0
+  items =. > y
+  a =. > {. items
+  b =. > {. }. items
+  c =. > {: items
+  matchingItemInA =. a e./ b
+  sharedAAndB =. matchingItemInA # a
+  matchingItemInAll =. sharedAAndB e./ c
+  shared =. {. matchingItemInAll # sharedAAndB
+)
+
+badges =. badgeItem each trios
+sumOfPrioritiesBadges =. ($ badges) + +/ letters i. > badges NB.input answer is 2805
