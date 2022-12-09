@@ -53,3 +53,27 @@ run =. 4 : 0
 )
 
 listOfStacks run moves NB. input answer is RTGWZTHLD
+
+move9001 =. 4 : 0
+  count =. > 0 { y
+  from =. (> 1 { y) - 1
+  to =. (> 2 { y) - 1
+  fromStack =. > from { x
+  items =. count {. fromStack
+  newFromStack =. count }. fromStack
+  new =. ((i. from) { > x) , newFromStack , ((from+1+i.((#x)-(from+1))) { >x)
+  toStack =. > to { x
+  newToStack =. items, toStack
+  newListOfStacks =. ((i. to) { new) , newToStack , ((to+1+i.((#new)-(to+1))) { new)
+)
+
+run9001 =. 4 : 0
+  list =. x
+  for_i. y do.
+    list =. list move9001 i
+    smoutput 'Move' ; i; list
+  end.
+  0 {"1 list
+)
+
+listOfStacks run9001 moves NB. input answer is STHGRZZFR
