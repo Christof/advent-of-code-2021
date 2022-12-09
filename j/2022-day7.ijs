@@ -12,7 +12,7 @@ process =. 3 : 0
     smoutput 'output' ; line; currentDir
     select. i
     case. '$ cd /' do. currentDir =. '/'
-    case. '$ cd ..' do. currentDir =. (currentDir i: '/') {. currentDir
+    case. '$ cd ..' do. currentDir =. (1 + (_1 }. currentDir) i: '/') {. currentDir
     case. '$ ls' do. smoutput 'ls in'; currentDir
     case. 'dir' do. smoutput 'dir skipping'
     case. do.
