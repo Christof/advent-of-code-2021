@@ -7,6 +7,7 @@ boxedValues =: (< ;. _2) (data , LF)
 
 process =. 3 : 0
   currentDir =. '/'
+  directories =. 0 $ 0
   for_i. y do.
     line =. > i
     smoutput 'output' ; line; currentDir
@@ -14,19 +15,21 @@ process =. 3 : 0
     case. '$ cd /' do. currentDir =. '/'
     case. '$ cd ..' do. currentDir =. (1 + (_1 }. currentDir) i: '/') {. currentDir
     case. '$ ls' do. smoutput 'ls in'; currentDir
-    case. 'dir' do. smoutput 'dir skipping'
     case. do.
-      p5 =. 5 {. line
-      cd =. '$ cd ' = p5
-      NB. smoutput 'isCd'; cd; p5
       if. *./ '$ cd ' = 5 {. line do. 
         currentDir =. currentDir, (5 }. line), '/'
+      elseif. *./ 'dir ' = 4 {. line do.
+        newDir =. < currentDir , 4 }. line
+        directories =. directories , newDir
+        smoutput 'Add dir'; newDir
       else.
         l =. $ line
         smoutput 'filesize'; line; l
       end.
     end.
   end.
+
+  smoutput 'directories'; directories
 )
 
 process boxedValues
