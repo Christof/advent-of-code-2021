@@ -8,6 +8,8 @@ boxedValues =: (< ;. _2) (data , LF)
 process =. 3 : 0
   currentDir =. '/'
   directories =. 0 $ 0
+  files =. 0 $ 0
+  sizes =. 0 $ 0
   for_i. y do.
     line =. > i
     smoutput 'output' ; line; currentDir
@@ -23,13 +25,19 @@ process =. 3 : 0
         directories =. directories , newDir
         smoutput 'Add dir'; newDir
       else.
-        l =. $ line
-        smoutput 'filesize'; line; l
+        spaceIndex =. line i. ' '
+        size =. ". spaceIndex {. line
+        file =. currentDir , (spaceIndex + 1) }. line
+        files =. files , <file
+        sizes =. sizes , size
+        smoutput file; size
       end.
     end.
   end.
 
   smoutput 'directories'; directories
+  smoutput files
+  smoutput sizes
 )
 
 process boxedValues
