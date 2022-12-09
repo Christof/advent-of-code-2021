@@ -5,6 +5,10 @@ input =. < '/home/christof/Documents/advent-of-code/inputs/2022-day7.txt'
 data =. readfile example
 boxedValues =: (< ;. _2) (data , LF)
 
+startsWith =. 4 : 0
+  *./ y = (# y) {. x
+)
+
 process =. 3 : 0
   currentDir =. '/'
   directories =. 0 $ 0
@@ -18,9 +22,9 @@ process =. 3 : 0
     case. '$ cd ..' do. currentDir =. (1 + (_1 }. currentDir) i: '/') {. currentDir
     case. '$ ls' do. smoutput 'ls in'; currentDir
     case. do.
-      if. *./ '$ cd ' = 5 {. line do. 
+      if. line startsWith '$ cd ' do. 
         currentDir =. currentDir, (5 }. line), '/'
-      elseif. *./ 'dir ' = 4 {. line do.
+      elseif. line startsWith 'dir ' do.
         newDir =. < currentDir , 4 }. line
         directories =. directories , newDir
         smoutput 'Add dir'; newDir
