@@ -17,7 +17,6 @@ dirContainsFile =. 4 : 0
   end.
   l =. 1 + file i: '/'
   dirOfFile =. l {. file
-  smoutput l; dirOfFile ; 'dir'; dir
   if. (# dirOfFile) = (# dir) do.
     *./ dirOfFile = dir
   else.
@@ -58,6 +57,35 @@ process =. 3 : 0
   smoutput 'directories'; directories
   smoutput files
   smoutput sizes
+
+
+  directorySizes =. 0 $ 0
+  for_d. directories do.
+    NB. smoutput d
+
+    filesInDir =. > (d dirContainsFile each files)
+    NB. smoutput 'filesInDir' ; filesInDir
+    f =. filesInDir # files
+    s =. filesInDir # sizes
+    totalDirSize =. +/ s
+    directorySizes =. directorySizes , totalDirSize
+
+    NB. smoutput totalDirSize
+  end.
+
+  for_d. directories do.
+    NB. smoutput d
+    dirsInDir =. > (d dirContainsFile each directories)
+    d =. dirsInDir # directories
+    addDirSize =. +/ dirsInDir # directorySizes
+    fullSize =. addDirSize + d_index { directorySizes
+    fullSize d_index} directorySizes
+
+    NB. smoutput fullSize
+  end.
+
+  smoutput 'directorySizes'; directorySizes
+  +/ (directorySizes <: 100000) # directorySizes
 )
 
 process boxedValues
