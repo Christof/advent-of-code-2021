@@ -9,6 +9,22 @@ startsWith =. 4 : 0
   *./ y = (# y) {. x
 )
 
+dirContainsFile =. 4 : 0
+  file =. > y
+  dir =. (> x) , '/'
+  if. 1 = # (> x) do.
+    dir =. '/'
+  end.
+  l =. 1 + file i: '/'
+  dirOfFile =. l {. file
+  smoutput l; dirOfFile ; 'dir'; dir
+  if. (# dirOfFile) = (# dir) do.
+    *./ dirOfFile = dir
+  else.
+    0
+  end.
+)
+
 process =. 3 : 0
   currentDir =. '/'
   directories =. 0 $ 0
